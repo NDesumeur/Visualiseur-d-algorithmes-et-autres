@@ -168,4 +168,6 @@ Entièrement responsive sur mobile. Contrôles compacts, visualiseurs évolutifs
 
 ## Auteur
 Par NDesumeur
-Créé pour l'apprentissage interactif des algorithmes et structures de données.
+
+créé pour l'apprentissage interactif des algorithmes et structures de données.
+
