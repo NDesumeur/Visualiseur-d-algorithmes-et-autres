@@ -1,0 +1,1878 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visu Algo</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #f1f5f9;
+        padding: 2rem;
+        min-height: 100vh;
+      }
+      
+      .container { max-width: 1280px; margin: 0 auto; }
+      
+      .header { 
+        border-bottom: 2px solid #3b82f6;
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+      .header h1 { font-size: 2.5rem; margin: 0.5rem 0 0; color: #60a5fa; font-weight: 700; }
+      .header p { color: #94a3b8; font-size: 0.95rem; margin-top: 0.5rem; }
+      
+      .tabs { 
+        display: flex; 
+        gap: 0.75rem; 
+        margin-bottom: 2rem;
+        justify-content: center;
+      }
+      .tab { 
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #475569;
+        background: rgba(30, 41, 59, 0.8);
+        border-radius: 9999px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s;
+        color: #cbd5e1;
+      }
+      .tab:hover { border-color: #60a5fa; transform: translateY(-2px); }
+      .tab.active { 
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        color: white;
+        border-color: #3b82f6;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+      }
+      
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+        border: 1px solid #3b82f6;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+      
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .control-group label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #60a5fa;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      
+      .control-group input,
+      .control-group select {
+        padding: 0.75rem;
+        border: 1px solid #3b82f6;
+        background: rgba(15, 23, 42, 0.8);
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        color: #f1f5f9;
+        transition: all 0.3s;
+      }
+      
+      .control-group input:hover,
+      .control-group select:hover {
+        border-color: #06b6d4;
+        box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+      }
+      
+      .control-group span {
+        color: #cbd5e1;
+        font-weight: 600;
+      }
+      
+      .btn {
+        padding: 0.75rem 1.25rem;
+        border: 2px solid #475569;
+        background: rgba(30, 41, 59, 0.8);
+        border-radius: 9999px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s;
+        color: #cbd5e1;
+      }
+      
+      .btn:hover { 
+        border-color: #60a5fa;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+      }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      .btn.accent {
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        color: white;
+        border-color: #06b6d4;
+      }
+      .btn.accent:hover { 
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+      }
+      
+      .card {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+        border: 1px solid #3b82f6;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+      
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+        color: #60a5fa;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #3b82f6;
+      }
+      
+      .visualizer {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 3px;
+        height: 24rem;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.8));
+        border: 1px solid #3b82f6;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+      }
+      
+      .bar {
+        min-width: 6px;
+        border-radius: 2px 2px 0 0;
+        transition: all 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
+        background: linear-gradient(180deg, #3b82f6 0%, #1e40af 100%);
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+      }
+      
+      .bar.active { 
+        background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+      }
+      .bar.fixed { 
+        background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+      }
+      
+      .controls-row {
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+      }
+      
+      .controls-row .btn-group { display: flex; gap: 0.75rem; }
+      
+      .graph-nodes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      
+      .node {
+        padding: 0.75rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        background: rgba(71, 85, 105, 0.8);
+        border: 1px solid #475569;
+        transition: all 0.3s;
+      }
+      
+      .node.frontier { 
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        border-color: #f59e0b;
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+      }
+      .node.visited { 
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-color: #10b981;
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+      }
+      
+      .section {
+        margin-bottom: 1rem;
+      }
+      
+      .section h3 {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #60a5fa;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        letter-spacing: 1px;
+      }
+      
+      .grid { 
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+      
+      table {
+        width: 100%;
+        font-size: 0.9rem;
+        border-collapse: collapse;
+      }
+      
+      th {
+        text-align: left;
+        padding: 0.75rem;
+        color: #60a5fa;
+        border-bottom: 2px solid #3b82f6;
+        font-weight: 700;
+      }
+      
+      td {
+        padding: 0.75rem;
+        border-top: 1px solid #3b82f6;
+        color: #cbd5e1;
+      }
+      
+      tr:hover { background: rgba(59, 130, 246, 0.1); }
+      
+      .footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #3b82f6;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #64748b;
+      }
+      
+      .info-box {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid #3b82f6;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.85rem;
+        color: #cbd5e1;
+      }
+      
+      .info-box strong { color: #60a5fa; }
+
+          .asm-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+          }
+      
+          .asm-registers, .asm-memory, .asm-code {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+            border: 1px solid #3b82f6;
+            border-radius: 0.75rem;
+            padding: 1rem;
+          }
+      
+          .register-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: rgba(15, 23, 42, 0.6);
+            border-left: 3px solid #06b6d4;
+            border-radius: 0.25rem;
+          }
+      
+          .register-name {
+            font-weight: 700;
+            color: #60a5fa;
+            font-family: monospace;
+          }
+      
+          .register-value {
+            color: #10b981;
+            font-family: monospace;
+            font-weight: 600;
+          }
+      
+          .instruction-line {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 0.25rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            border-left: 3px solid #475569;
+          }
+      
+          .instruction-line.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-left-color: #f59e0b;
+          }
+      
+          .asm-full {
+            grid-column: 1 / -1;
+          }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <p style="font-size: 0.75rem; text-transform: uppercase; color: #60a5fa;">Visu Algo</p>
+        <h1>Visualiseur d'Algorithmes</h1>
+        <div class="tabs">
+          <button class="tab active" data-tab="sorting">Tri</button>
+          <button class="tab" data-tab="graphs">Graphes</button>
+          <button class="tab" data-tab="structures">Structures</button>
+          <button class="tab" data-tab="perf">Performances</button>
+          <button class="tab" data-tab="asm">Assembleur</button>
+        </div>
+      </header>
+
+      <main id="content"></main>
+    </div>
+
+    <script>
+      const programSamples = {
+        boucle: [
+          'MOV RAX, 5',
+          'MOV RBX, 0',
+          'LOOP:',
+          'ADD RBX, RAX',
+          'SUB RAX, 1',
+          'CMP RAX, 0',
+          'JNE LOOP',
+          'HALT'
+        ],
+        pile: [
+          'MOV RAX, 3',
+          'MOV RBX, 4',
+          'PUSH RAX',
+          'PUSH RBX',
+          'POP RCX',
+          'POP RDX',
+          'ADD RCX, RDX',
+          'HALT'
+        ],
+        branche: [
+          'MOV RAX, 10',
+          'CMP RAX, 10',
+          'JE OK',
+          'MOV RBX, 1',
+          'JMP END',
+          'OK:',
+          'MOV RBX, 42',
+          'END:',
+          'HALT'
+        ]
+      };
+
+      const defaultProgram = programSamples.boucle;
+
+      // ========== STATE ==========
+      let state = {
+        currentTab: 'sorting',
+        size: 25,
+        speed: 300,
+        distribution: 'random',
+        algo: 'bubble',
+        arr: null,
+        frames: null,
+        frameIdx: 0,
+        playing: false,
+        graphAlgo: 'bfs',
+        graphStart: 'A',
+        graphTarget: 'F',
+        graphIdx: 0,
+        graphPlaying: false,
+        perfSize: 150,
+        perfRuns: 2,
+        perfResults: null,
+        graphSteps: null,
+        asmProgram: defaultProgram,
+        asmSteps: null,
+        asmIdx: 0,
+        asmPlaying: false,
+        structureType: 'stack',
+        stackData: [],
+        queueData: [],
+        stackHistory: [],
+        queueHistory: []
+      };
+
+      // ========== UTILS ==========
+      const createRandomArray = (size, mode = 'random') => {
+        const n = Math.max(5, Math.min(size, 200));
+        const base = Array.from({ length: n }, () => Math.floor(Math.random() * 500) + 20);
+        if (mode === 'sorted') return [...base].sort((a, b) => a - b);
+        if (mode === 'reversed') return [...base].sort((a, b) => b - a);
+        if (mode === 'nearly') {
+          const sorted = [...base].sort((a, b) => a - b);
+          const swaps = Math.max(1, Math.floor(n * 0.1));
+          for (let i = 0; i < swaps; i++) {
+            const a = Math.floor(Math.random() * n);
+            const b = Math.floor(Math.random() * n);
+            [sorted[a], sorted[b]] = [sorted[b], sorted[a]];
+          }
+          return sorted;
+        }
+        return base;
+      };
+
+      const record = (frames, array, active = [], fixed = [], note = "", stats = {}) => {
+        frames.push({ array: [...array], active: [...active], fixed: [...fixed], note, stats: {...stats} });
+      };
+
+      // ========== SORTING ALGORITHMS ==========
+      const bubbleSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        let comps = 0, swaps = 0;
+        record(frames, arr, [], fixed, "Tableau initial", {comps, swaps});
+        for (let i = 0; i < arr.length; i++) {
+          for (let j = 0; j < arr.length - i - 1; j++) {
+            comps++;
+            record(frames, arr, [j, j + 1], fixed, "Comparaison", {comps, swaps});
+            if (arr[j] > arr[j + 1]) {
+              [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+              swaps++;
+              record(frames, arr, [j, j + 1], fixed, "Permutation", {comps, swaps});
+            }
+          }
+          fixed.unshift(arr.length - i - 1);
+          record(frames, arr, [], fixed, "Fin de passe", {comps, swaps});
+        }
+        return frames;
+      };
+
+      const insertionSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        for (let i = 1; i < arr.length; i++) {
+          const key = arr[i];
+          let j = i - 1;
+          while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            record(frames, arr, [j, j + 1], fixed, "Décalage");
+            j--;
+          }
+          arr[j + 1] = key;
+          fixed.push(i);
+          record(frames, arr, [j + 1], fixed, "Insertion");
+        }
+        return frames;
+      };
+
+      const selectionSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        for (let i = 0; i < arr.length; i++) {
+          let minIdx = i;
+          for (let j = i + 1; j < arr.length; j++) {
+            record(frames, arr, [minIdx, j], fixed, "Recherche min");
+            if (arr[j] < arr[minIdx]) {
+              minIdx = j;
+              record(frames, arr, [minIdx], fixed, "Nouveau min");
+            }
+          }
+          [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+          fixed.push(i);
+          record(frames, arr, [i], fixed, "Placement");
+        }
+        return frames;
+      };
+
+      const quickSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        const stack = [[0, arr.length - 1]];
+        while (stack.length) {
+          const [low, high] = stack.pop();
+          if (low >= high) {
+            if (low === high && !fixed.includes(low)) fixed.push(low);
+            continue;
+          }
+          const pivot = arr[high];
+          let i = low - 1;
+          record(frames, arr, [high], fixed, "Pivot: " + pivot);
+          for (let j = low; j < high; j++) {
+            record(frames, arr, [j, high], fixed, "Comparaison");
+            if (arr[j] <= pivot) {
+              i++;
+              [arr[i], arr[j]] = [arr[j], arr[i]];
+              record(frames, arr, [i, j, high], fixed, "Permutation");
+            }
+          }
+          [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+          record(frames, arr, [i + 1], fixed, "Pivot placé");
+          fixed.push(i + 1);
+          stack.push([low, i]);
+          stack.push([i + 2, high]);
+        }
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const mergeSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+
+        const merge = (start, mid, end) => {
+          const left = arr.slice(start, mid + 1);
+          const right = arr.slice(mid + 1, end + 1);
+          let i = 0, j = 0, k = start;
+          while (i < left.length && j < right.length) {
+            record(frames, arr, [k], fixed, "Fusion");
+            if (left[i] <= right[j]) {
+              arr[k] = left[i];
+              i++;
+            } else {
+              arr[k] = right[j];
+              j++;
+            }
+            k++;
+          }
+          while (i < left.length) {
+            arr[k] = left[i];
+            i++;
+            k++;
+            record(frames, arr, [k - 1], fixed, "Copie gauche");
+          }
+          while (j < right.length) {
+            arr[k] = right[j];
+            j++;
+            k++;
+            record(frames, arr, [k - 1], fixed, "Copie droite");
+          }
+        };
+
+        const divide = (start, end) => {
+          if (start >= end) return;
+          const mid = Math.floor((start + end) / 2);
+          divide(start, mid);
+          divide(mid + 1, end);
+          merge(start, mid, end);
+          if (!fixed.includes(end)) fixed.push(end);
+        };
+
+        divide(0, arr.length - 1);
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const heapSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+
+        const heapify = (n, i) => {
+          let largest = i;
+          const left = 2 * i + 1;
+          const right = 2 * i + 2;
+          if (left < n && arr[left] > arr[largest]) largest = left;
+          if (right < n && arr[right] > arr[largest]) largest = right;
+          if (largest !== i) {
+            record(frames, arr, [i, largest], fixed, "Comparaison");
+            [arr[i], arr[largest]] = [arr[largest], arr[i]];
+            record(frames, arr, [i, largest], fixed, "Permutation");
+            heapify(n, largest);
+          }
+        };
+
+        const n = arr.length;
+        for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(n, i);
+        for (let i = n - 1; i > 0; i--) {
+          record(frames, arr, [0, i], fixed, "Déplacement max");
+          [arr[0], arr[i]] = [arr[i], arr[0]];
+          fixed.unshift(i);
+          record(frames, arr, [0], fixed, "Échange");
+          heapify(i, 0);
+        }
+        fixed.push(0);
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const shellSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        let gap = Math.floor(arr.length / 2);
+        while (gap > 0) {
+          for (let i = gap; i < arr.length; i++) {
+            const temp = arr[i];
+            let j = i;
+            while (j >= gap && arr[j - gap] > temp) {
+              record(frames, arr, [j - gap, j], fixed, "Comparaison (gap:" + gap + ")");
+              arr[j] = arr[j - gap];
+              j -= gap;
+              record(frames, arr, [j], fixed, "Décalage");
+            }
+            arr[j] = temp;
+            record(frames, arr, [j], fixed, "Insertion");
+          }
+          gap = Math.floor(gap / 2);
+        }
+        for (let i = 0; i < arr.length; i++) fixed.push(i);
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const countingSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        const max = Math.max(...arr);
+        const count = Array(max + 1).fill(0);
+        for (let i = 0; i < arr.length; i++) {
+          record(frames, arr, [i], fixed, "Comptage");
+          count[arr[i]]++;
+        }
+        let idx = 0;
+        for (let i = 0; i <= max; i++) {
+          while (count[i] > 0) {
+            arr[idx] = i;
+            record(frames, arr, [idx], fixed, "Placement");
+            idx++;
+            count[i]--;
+          }
+        }
+        for (let i = 0; i < arr.length; i++) fixed.push(i);
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const cocktailSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        let start = 0, end = arr.length - 1;
+        while (start < end) {
+          for (let i = start; i < end; i++) {
+            record(frames, arr, [i, i + 1], fixed, "Comparaison forward");
+            if (arr[i] > arr[i + 1]) {
+              [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+              record(frames, arr, [i, i + 1], fixed, "Permutation");
+            }
+          }
+          fixed.push(end);
+          end--;
+          for (let i = end; i > start; i--) {
+            record(frames, arr, [i - 1, i], fixed, "Comparaison backward");
+            if (arr[i - 1] > arr[i]) {
+              [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+              record(frames, arr, [i - 1, i], fixed, "Permutation");
+            }
+          }
+          fixed.push(start);
+          start++;
+        }
+        for (let i = 0; i < arr.length; i++) if (!fixed.includes(i)) fixed.push(i);
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const radixSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        const max = Math.max(...arr);
+        let exp = 1;
+        while (Math.floor(max / exp) > 0) {
+          const buckets = Array.from({ length: 10 }, () => []);
+          for (let i = 0; i < arr.length; i++) {
+            record(frames, arr, [i], fixed, "Chiffre: " + Math.floor((arr[i] / exp) % 10));
+            buckets[Math.floor((arr[i] / exp) % 10)].push(arr[i]);
+          }
+          let idx = 0;
+          for (let b = 0; b < buckets.length; b++) {
+            for (let v of buckets[b]) {
+              arr[idx] = v;
+              record(frames, arr, [idx], fixed, "Placement");
+              idx++;
+            }
+          }
+          exp *= 10;
+        }
+        for (let i = 0; i < arr.length; i++) fixed.push(i);
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const combSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        let gap = arr.length;
+        const shrink = 1.3;
+        let sorted = false;
+        while (!sorted) {
+          gap = Math.floor(gap / shrink);
+          if (gap <= 1) {
+            gap = 1;
+            sorted = true;
+          }
+          for (let i = 0; i + gap < arr.length; i++) {
+            record(frames, arr, [i, i + gap], fixed, "Comparaison (écart:" + gap + ")");
+            if (arr[i] > arr[i + gap]) {
+              [arr[i], arr[i + gap]] = [arr[i + gap], arr[i]];
+              record(frames, arr, [i, i + gap], fixed, "Permutation");
+              sorted = false;
+            }
+          }
+        }
+        for (let i = 0; i < arr.length; i++) fixed.push(i);
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const gnomeSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        let i = 1;
+        while (i < arr.length) {
+          record(frames, arr, [i - 1, i], fixed, "Comparaison");
+          if (arr[i - 1] <= arr[i]) {
+            i++;
+          } else {
+            [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+            record(frames, arr, [i - 1, i], fixed, "Permutation");
+            i = Math.max(1, i - 1);
+          }
+        }
+        for (let k = 0; k < arr.length; k++) fixed.push(k);
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const cycleSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        for (let cycleStart = 0; cycleStart < arr.length - 1; cycleStart++) {
+          let item = arr[cycleStart];
+          let pos = cycleStart;
+          for (let i = cycleStart + 1; i < arr.length; i++) {
+            record(frames, arr, [i, pos], fixed, "Comptage");
+            if (arr[i] < item) pos++;
+          }
+          if (pos === cycleStart) continue;
+          while (item === arr[pos]) pos++;
+          [arr[pos], item] = [item, arr[pos]];
+          record(frames, arr, [pos], fixed, "Permutation");
+          while (pos !== cycleStart) {
+            pos = cycleStart;
+            for (let i = cycleStart + 1; i < arr.length; i++) {
+              record(frames, arr, [i], fixed, "Comptage");
+              if (arr[i] < item) pos++;
+            }
+            while (item === arr[pos]) pos++;
+            [arr[pos], item] = [item, arr[pos]];
+            record(frames, arr, [pos], fixed, "Permutation");
+          }
+        }
+        for (let i = 0; i < arr.length; i++) fixed.push(i);
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const pancakeSort = (input) => {
+        const arr = [...input];
+        const frames = [];
+        const fixed = [];
+        record(frames, arr, [], fixed, "Tableau initial");
+        const flip = (i) => {
+          let l = 0, r = i;
+          while (l < r) {
+            [arr[l], arr[r]] = [arr[r], arr[l]];
+            l++;
+            r--;
+          }
+          record(frames, arr, Array.from({ length: i + 1 }, (_, k) => k), fixed, "Retournement");
+        };
+        for (let i = arr.length; i > 1; i--) {
+          let maxIdx = 0;
+          for (let j = 1; j < i; j++) {
+            record(frames, arr, [maxIdx, j], fixed, "Recherche max");
+            if (arr[j] > arr[maxIdx]) maxIdx = j;
+          }
+          if (maxIdx !== 0) flip(maxIdx);
+          flip(i - 1);
+          fixed.push(i - 1);
+          record(frames, arr, [], fixed, "Max en place");
+        }
+        fixed.push(0);
+        record(frames, arr, [], fixed, "Terminé");
+        return frames;
+      };
+
+      const generateSort = (algo, arr) => {
+        switch (algo) {
+          case "bubble": return bubbleSort(arr);
+          case "insertion": return insertionSort(arr);
+          case "selection": return selectionSort(arr);
+          case "quick": return quickSort(arr);
+          case "merge": return mergeSort(arr);
+          case "heap": return heapSort(arr);
+          case "shell": return shellSort(arr);
+          case "counting": return countingSort(arr);
+          case "cocktail": return cocktailSort(arr);
+          case "radix": return radixSort(arr);
+          case "comb": return combSort(arr);
+          case "gnome": return gnomeSort(arr);
+          case "cycle": return cycleSort(arr);
+          case "pancake": return pancakeSort(arr);
+          default: return bubbleSort(arr);
+        }
+      };
+
+      // ========== GRAPH ==========
+      const sampleGraph = {
+        nodes: [{ id: "A" }, { id: "B" }, { id: "C" }, { id: "D" }, { id: "E" }, { id: "F" }],
+        edges: [
+          { from: "A", to: "B", w: 2 },
+          { from: "A", to: "C", w: 1 },
+          { from: "B", to: "D", w: 3 },
+          { from: "C", to: "D", w: 1 },
+          { from: "C", to: "E", w: 4 },
+          { from: "D", to: "F", w: 2 },
+          { from: "E", to: "F", w: 1 }
+        ]
+      };
+
+      const neighbors = (graph, id) => graph.edges.filter(e => e.from === id).map(e => e.to);
+
+      const bfs = (graph, start) => {
+        const steps = [];
+        const visited = new Set();
+        const queue = [start];
+        steps.push({ visited: [], frontier: [...queue], current: start, note: "Départ BFS" });
+        while (queue.length) {
+          const node = queue.shift();
+          if (visited.has(node)) continue;
+          visited.add(node);
+          const next = neighbors(graph, node).filter(n => !visited.has(n));
+          queue.push(...next);
+          steps.push({ visited: [...visited], frontier: [...queue], current: node, note: "Visite" });
+        }
+        steps.push({ visited: [...visited], frontier: [], note: "Terminé" });
+        return steps;
+      };
+
+      const dfs = (graph, start) => {
+        const steps = [];
+        const visited = new Set();
+        const stack = [start];
+        steps.push({ visited: [], frontier: [...stack], current: start, note: "Départ DFS" });
+        while (stack.length) {
+          const node = stack.pop();
+          if (visited.has(node)) continue;
+          visited.add(node);
+          const next = neighbors(graph, node).filter(n => !visited.has(n));
+          for (let i = next.length - 1; i >= 0; i--) stack.push(next[i]);
+          steps.push({ visited: [...visited], frontier: [...stack], current: node, note: "Visite" });
+        }
+        steps.push({ visited: [...visited], frontier: [], note: "Terminé" });
+        return steps;
+      };
+
+      const dijkstra = (graph, start, target) => {
+        const dist = {};
+        const prev = {};
+        graph.nodes.forEach(n => { dist[n.id] = Infinity; prev[n.id] = null; });
+        dist[start] = 0;
+        const visited = new Set();
+        const steps = [];
+
+        const snapshot = (current, note) => {
+          const frontier = graph.nodes
+            .filter(n => !visited.has(n.id) && dist[n.id] !== Infinity)
+            .map(n => n.id)
+            .sort((a, b) => dist[a] - dist[b]);
+          steps.push({
+            visited: [...visited],
+            frontier,
+            current,
+            dist: { ...dist },
+            prev: { ...prev },
+            note
+          });
+        };
+
+        snapshot(start, "Départ Dijkstra");
+
+        while (visited.size < graph.nodes.length) {
+          const candidates = graph.nodes.filter(n => !visited.has(n.id) && dist[n.id] !== Infinity);
+          if (candidates.length === 0) break;
+          const current = candidates.reduce((best, n) => dist[n.id] < dist[best.id] ? n : best, candidates[0]).id;
+          visited.add(current);
+          const outgoing = graph.edges.filter(e => e.from === current);
+          outgoing.forEach(e => {
+            const alt = dist[current] + e.w;
+            if (alt < dist[e.to]) {
+              dist[e.to] = alt;
+              prev[e.to] = current;
+            }
+          });
+          snapshot(current, current === target ? "Cible atteinte" : "Relaxation");
+          if (current === target) break;
+        }
+
+        return steps;
+      };
+
+      // ========== BENCHMARK ==========
+      const benchmark = (algos, size, runs = 2) => {
+        const results = [];
+        algos.forEach(algo => {
+          let time = 0, steps = 0;
+          for (let i = 0; i < runs; i++) {
+            const arr = createRandomArray(size);
+            const t0 = performance.now();
+            const frames = generateSort(algo, arr);
+            const t1 = performance.now();
+            time += t1 - t0;
+            steps += frames.length;
+          }
+          results.push({ algo, ms: (time / runs).toFixed(2), steps: Math.round(steps / runs) });
+        });
+        return results.sort((a, b) => a.ms - b.ms);
+      };
+
+      // ========== ASSEMBLEUR ==========
+      const simulateAssembly = (program) => {
+        const registers = { RAX: 0, RBX: 0, RCX: 0, RDX: 0, RSI: 0, RDI: 0, RSP: 100, RBP: 100 };
+        const memory = {};
+        const flags = { ZF: false, SF: false };
+        const steps = [];
+
+        const cleaned = [];
+        const labels = {};
+        program.forEach((line, idx) => {
+          const trimmed = line.trim();
+          if (!trimmed) return;
+          if (trimmed.endsWith(':')) {
+            labels[trimmed.replace(':', '')] = cleaned.length;
+          } else {
+            cleaned.push({ code: trimmed, displayIndex: idx });
+          }
+        });
+
+        let pc = 0;
+
+        const addStep = (note) => {
+          const displayPc = cleaned[pc]?.displayIndex ?? pc;
+          steps.push({
+            registers: { ...registers },
+            memory: { ...memory },
+            flags: { ...flags },
+            pc: displayPc,
+            note
+          });
+        };
+
+        const valueOf = (token) => {
+          if (token in registers) return registers[token];
+          const num = parseInt(token, 10);
+          return isNaN(num) ? 0 : num;
+        };
+
+        addStep("Initialisation");
+
+        while (pc < cleaned.length) {
+          const raw = cleaned[pc].code;
+          const [instr] = raw.split(/\s+/);
+          const operands = raw.slice(instr.length).split(',').map(s => s.trim()).filter(Boolean);
+
+          const jumpTo = (label, note) => {
+            addStep(note);
+            pc = label in labels ? labels[label] : pc + 1;
+          };
+
+          switch (instr) {
+            case 'MOV': {
+              const [dest, src] = operands;
+              registers[dest] = valueOf(src);
+              addStep(`MOV ${dest}, ${src}`);
+              pc++;
+              break;
+            }
+            case 'ADD': {
+              const [dest, src] = operands;
+              registers[dest] += valueOf(src);
+              addStep(`ADD ${dest}, ${src}`);
+              pc++;
+              break;
+            }
+            case 'SUB': {
+              const [dest, src] = operands;
+              registers[dest] -= valueOf(src);
+              addStep(`SUB ${dest}, ${src}`);
+              pc++;
+              break;
+            }
+            case 'CMP': {
+              const [a, b] = operands;
+              const va = valueOf(a);
+              const vb = valueOf(b);
+              flags.ZF = va === vb;
+              flags.SF = va < vb;
+              addStep(`CMP ${a}, ${b}`);
+              pc++;
+              break;
+            }
+            case 'JMP': {
+              const [label] = operands;
+              jumpTo(label, `JMP ${label}`);
+              break;
+            }
+            case 'JE': {
+              const [label] = operands;
+              if (flags.ZF) {
+                jumpTo(label, `JE ${label} (ZF=1)`);
+              } else {
+                addStep(`JE ${label} (ZF=0, sauté)`);
+                pc++;
+              }
+              break;
+            }
+            case 'JNE': {
+              const [label] = operands;
+              if (!flags.ZF) {
+                jumpTo(label, `JNE ${label} (ZF=0)`);
+              } else {
+                addStep(`JNE ${label} (ZF=1, sauté)`);
+                pc++;
+              }
+              break;
+            }
+            case 'PUSH': {
+              const [src] = operands;
+              registers.RSP -= 1;
+              memory[registers.RSP] = valueOf(src);
+              addStep(`PUSH ${src}`);
+              pc++;
+              break;
+            }
+            case 'POP': {
+              const [dest] = operands;
+              registers[dest] = memory[registers.RSP] ?? 0;
+              delete memory[registers.RSP];
+              registers.RSP += 1;
+              addStep(`POP ${dest}`);
+              pc++;
+              break;
+            }
+            case 'HALT': {
+              addStep('Arrêt du programme');
+              pc = cleaned.length;
+              break;
+            }
+            default: {
+              addStep(`Instruction: ${instr}`);
+              pc++;
+              break;
+            }
+          }
+        }
+
+        return steps;
+      };
+
+
+      // ========== RENDER ==========
+      const render = () => {
+        const content = document.getElementById('content');
+        
+        if (state.currentTab === 'sorting') {
+          content.innerHTML = `
+            <div class="card">
+              <div class="controls">
+                <div class="control-group">
+                  <label>Taille</label>
+                  <input type="range" id="size" min="5" max="120" value="${state.size}" style="width: 150px">
+                  <span>${state.size}</span>
+                </div>
+                <div class="control-group">
+                  <label>Vitesse (ms)</label>
+                  <input type="range" id="speed" min="50" max="1200" step="50" value="${state.speed}" style="width: 150px">
+                  <span>${state.speed}</span>
+                </div>
+                <div class="control-group">
+                  <label>Distribution</label>
+                  <select id="distribution">
+                    <option value="random" ${state.distribution === 'random' ? 'selected' : ''}>Aléatoire</option>
+                    <option value="sorted" ${state.distribution === 'sorted' ? 'selected' : ''}>Trié</option>
+                    <option value="reversed" ${state.distribution === 'reversed' ? 'selected' : ''}>Inversé</option>
+                    <option value="nearly" ${state.distribution === 'nearly' ? 'selected' : ''}>Presque trié</option>
+                  </select>
+                </div>
+                <div class="control-group">
+                  <label>Algo</label>
+                  <select id="algo">
+                    <option value="bubble" ${state.algo === 'bubble' ? 'selected' : ''}>Bulles</option>
+                    <option value="insertion" ${state.algo === 'insertion' ? 'selected' : ''}>Insertion</option>
+                    <option value="selection" ${state.algo === 'selection' ? 'selected' : ''}>Sélection</option>
+                    <option value="quick" ${state.algo === 'quick' ? 'selected' : ''}>Rapide</option>
+                    <option value="merge" ${state.algo === 'merge' ? 'selected' : ''}>Fusion</option>
+                    <option value="heap" ${state.algo === 'heap' ? 'selected' : ''}>Tas</option>
+                    <option value="shell" ${state.algo === 'shell' ? 'selected' : ''}>Écart</option>
+                    <option value="counting" ${state.algo === 'counting' ? 'selected' : ''}>Comptage</option>
+                    <option value="cocktail" ${state.algo === 'cocktail' ? 'selected' : ''}>Cocktail</option>
+                    <option value="radix" ${state.algo === 'radix' ? 'selected' : ''}>Radix</option>
+                    <option value="comb" ${state.algo === 'comb' ? 'selected' : ''}>Peigne</option>
+                    <option value="gnome" ${state.algo === 'gnome' ? 'selected' : ''}>Gnome</option>
+                    <option value="cycle" ${state.algo === 'cycle' ? 'selected' : ''}>Cycle</option>
+                    <option value="pancake" ${state.algo === 'pancake' ? 'selected' : ''}>Crêpe</option>
+                  </select>
+                </div>
+                <button class="btn accent" id="shuffle">Mélanger</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="control-group" style="width:100%;">
+                <label>Saisir un tableau (séparé par virgules ou espaces)</label>
+                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap: wrap;">
+                  <input id="array-input" type="text" placeholder="ex: 5, 3, 8, 1" style="flex:1; min-width: 220px; padding: 0.75rem; border: 1px solid #3b82f6; background: rgba(15, 23, 42, 0.8); color: #f1f5f9; border-radius: 0.5rem;">
+                  <button class="btn" id="load-array">Charger</button>
+                  <span id="array-error" style="color:#f97316; font-size:0.85rem;"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <span>Étape ${state.frameIdx + 1} / ${state.frames.length}</span>
+                <span>${state.frames[state.frameIdx]?.note || ''}</span>
+                ${state.frames[state.frameIdx]?.stats ? `<span style="color:#60a5fa;">Comps: ${state.frames[state.frameIdx].stats.comps || 0} • Swaps: ${state.frames[state.frameIdx].stats.swaps || 0}</span>` : ''}
+              </div>
+              <div class="visualizer" id="viz"></div>
+            </div>
+
+            <div class="controls-row">
+              <div class="btn-group">
+                <button class="btn" id="prev" ${state.frameIdx === 0 ? 'disabled' : ''}>◀ Précédent</button>
+                <button class="btn accent" id="play">${state.playing ? 'Pause' : 'Lire'}</button>
+                <button class="btn" id="next" ${state.frameIdx >= state.frames.length - 1 ? 'disabled' : ''}>Suivant ▶</button>
+              </div>
+              <span style="font-size: 0.75rem; color: #64748b;">${state.algo.toUpperCase()} • ${state.size} • ${state.speed}ms</span>
+            </div>
+
+              <div class="info-box" style="margin-top: 1rem;">
+                ${(() => {
+                  const frame = state.frames[state.frameIdx];
+                  const arr = frame?.array || [];
+                  if (!arr.length) return '';
+                  const min = Math.min(...arr);
+                  const max = Math.max(...arr);
+                  const avg = Math.round(arr.reduce((a,b)=>a+b,0)/arr.length);
+                  return `Min ${min} • Max ${max} • Moyenne ${avg}`;
+                })()}
+              </div>
+          `;
+
+          if (state.compareMode) {
+            const viz2 = document.getElementById('viz2');
+            const frame2 = state.frames2[state.frameIdx2];
+            const max2 = Math.max(...frame2.array, 1);
+            viz2.innerHTML = frame2.array.map((v, i) => {
+              const h = Math.max(8, (v / max2) * 100);
+              const isFix = frame2.fixed?.includes(i);
+              const isAct = frame2.active?.includes(i);
+              return `<div class="bar ${isFix ? 'fixed' : isAct ? 'active' : ''}" style="height: ${h}%"></div>`;
+            }).join('');
+          }
+
+          
+
+          document.getElementById('size').addEventListener('change', e => {
+            state.size = Number(e.target.value);
+            state.arr = createRandomArray(state.size, state.distribution);
+            state.frames = generateSort(state.algo, state.arr);
+            state.frameIdx = 0;
+            state.playing = false;
+            render();
+          });
+
+          document.getElementById('speed').addEventListener('change', e => {
+            state.speed = Number(e.target.value);
+          });
+
+          document.getElementById('algo').addEventListener('change', e => {
+            state.algo = e.target.value;
+            state.frames = generateSort(state.algo, state.arr);
+            state.frameIdx = 0;
+            state.playing = false;
+            render();
+          });
+
+          document.getElementById('distribution').addEventListener('change', e => {
+            state.distribution = e.target.value;
+            state.arr = createRandomArray(state.size, state.distribution);
+            state.frames = generateSort(state.algo, state.arr);
+            state.frameIdx = 0;
+            state.playing = false;
+            render();
+          });
+
+          document.getElementById('shuffle').addEventListener('click', () => {
+            state.arr = createRandomArray(state.size, state.distribution);
+            state.frames = generateSort(state.algo, state.arr);
+            state.frameIdx = 0;
+            state.playing = false;
+            render();
+          });
+
+          const loadArray = () => {
+            const input = document.getElementById('array-input').value.trim();
+            const errorEl = document.getElementById('array-error');
+            errorEl.textContent = '';
+            if (!input) {
+              errorEl.textContent = 'Entrez au moins un nombre';
+              return;
+            }
+            const parts = input.replace(/,/g, ' ').split(/\s+/).filter(Boolean);
+            const nums = parts.map(p => Number(p)).filter(n => !Number.isNaN(n));
+            if (nums.length !== parts.length) {
+              errorEl.textContent = 'Format invalide';
+              return;
+            }
+            if (nums.length < 3 || nums.length > 120) {
+              errorEl.textContent = 'Entre 3 et 120 éléments';
+              return;
+            }
+            state.size = nums.length;
+            state.arr = nums;
+            state.frames = generateSort(state.algo, state.arr);
+            state.frameIdx = 0;
+            state.playing = false;
+            render();
+          };
+
+          document.getElementById('load-array').addEventListener('click', loadArray);
+          document.getElementById('array-input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              loadArray();
+            }
+          });
+
+          document.getElementById('prev').addEventListener('click', () => {
+            if (state.frameIdx > 0) {
+              state.frameIdx--;
+              render();
+            }
+          });
+
+          document.getElementById('next').addEventListener('click', () => {
+            if (state.frameIdx < state.frames.length - 1) {
+              state.frameIdx++;
+              render();
+            }
+          });
+
+          document.getElementById('play').addEventListener('click', () => {
+            state.playing = !state.playing;
+            render();
+            if (state.playing) playAnimation();
+          });
+
+        } else if (state.currentTab === 'structures') {
+          content.innerHTML = `
+            <div class="controls" style="gap: 1rem; margin-bottom: 1rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="structType" value="stack" ${state.structureType === 'stack' ? 'checked' : ''}>
+                <span>Pile (LIFO)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="structType" value="queue" ${state.structureType === 'queue' ? 'checked' : ''}>
+                <span>File (FIFO)</span>
+              </label>
+            </div>
+
+            <div class="card">
+              <div class="controls">
+                <div class="control-group">
+                  <label>Valeur</label>
+                  <input type="number" id="struct-value" placeholder="Entrez un nombre" style="width: 120px; padding: 0.75rem; border: 1px solid #3b82f6; background: rgba(15, 23, 42, 0.8); color: #f1f5f9; border-radius: 0.5rem;">
+                </div>
+                <button class="btn accent" id="struct-push">Ajouter</button>
+                <button class="btn" id="struct-pop">Retirer</button>
+                <button class="btn" id="struct-clear">Vider</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 style="color: #60a5fa; margin-bottom: 1rem;">${state.structureType === 'stack' ? 'Pile' : 'File'} (${state.structureType === 'stack' ? state.stackData.length : state.queueData.length} éléments)</h3>
+              <div style="display: flex; ${state.structureType === 'stack' ? 'flex-direction: column-reverse;' : 'flex-direction: row;'} gap: 0.5rem; min-height: 200px; padding: 1rem; background: rgba(15, 23, 42, 0.6); border-radius: 0.75rem; align-items: ${state.structureType === 'stack' ? 'stretch' : 'center'}; justify-content: ${state.structureType === 'queue' ? 'flex-start' : 'flex-end'};">
+                ${(state.structureType === 'stack' ? state.stackData : state.queueData).map((val, i) => 
+                  `<div style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); color: white; border-radius: 0.5rem; font-weight: 700; text-align: center; ${state.structureType === 'queue' ? 'min-width: 60px;' : ''}">${val}</div>`
+                ).join('') || '<p style="color: #94a3b8; margin: auto;">Vide</p>'}
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 style="color: #60a5fa; margin-bottom: 0.75rem;">Historique</h3>
+              <div style="max-height: 150px; overflow-y: auto; font-size: 0.85rem; color: #cbd5e1;">
+                ${(state.structureType === 'stack' ? state.stackHistory : state.queueHistory).slice(-10).reverse().map(h => `<div style="padding: 0.25rem 0;">${h}</div>`).join('') || '<p style="color: #94a3b8;">Aucune opération</p>'}
+              </div>
+            </div>
+          `;
+
+          document.querySelectorAll('input[name="structType"]').forEach(r => {
+            r.addEventListener('change', e => {
+              state.structureType = e.target.value;
+              render();
+            });
+          });
+
+          document.getElementById('struct-push').addEventListener('click', () => {
+            const val = document.getElementById('struct-value').value;
+            if (!val) return;
+            const num = Number(val);
+            if (Number.isNaN(num)) return;
+            if (state.structureType === 'stack') {
+              state.stackData.push(num);
+              state.stackHistory.push(`PUSH ${num}`);
+            } else {
+              state.queueData.push(num);
+              state.queueHistory.push(`ENQUEUE ${num}`);
+            }
+            document.getElementById('struct-value').value = '';
+            render();
+          });
+
+          document.getElementById('struct-pop').addEventListener('click', () => {
+            if (state.structureType === 'stack') {
+              const val = state.stackData.pop();
+              if (val !== undefined) state.stackHistory.push(`POP ${val}`);
+            } else {
+              const val = state.queueData.shift();
+              if (val !== undefined) state.queueHistory.push(`DEQUEUE ${val}`);
+            }
+            render();
+          });
+
+          document.getElementById('struct-clear').addEventListener('click', () => {
+            if (state.structureType === 'stack') {
+              state.stackData = [];
+              state.stackHistory.push('CLEAR');
+            } else {
+              state.queueData = [];
+              state.queueHistory.push('CLEAR');
+            }
+            render();
+          });
+
+        } else if (state.currentTab === 'graphs') {
+          content.innerHTML = `
+            <div class="controls" style="gap: 1rem; margin-bottom: 1rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="graphAlgo" value="bfs" ${state.graphAlgo === 'bfs' ? 'checked' : ''}>
+                <span>BFS</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="graphAlgo" value="dfs" ${state.graphAlgo === 'dfs' ? 'checked' : ''}>
+                <span>DFS</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="graphAlgo" value="dijkstra" ${state.graphAlgo === 'dijkstra' ? 'checked' : ''}>
+                <span>Dijkstra</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem;">
+                Départ
+                <select id="graph-start" style="padding: 0.35rem; background: rgba(15,23,42,0.7); color: #e2e8f0; border: 1px solid #3b82f6; border-radius: 0.5rem;">
+                  ${sampleGraph.nodes.map(n => `<option value="${n.id}" ${state.graphStart === n.id ? 'selected' : ''}>${n.id}</option>`).join('')}
+                </select>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem;">
+                Cible
+                <select id="graph-target" style="padding: 0.35rem; background: rgba(15,23,42,0.7); color: #e2e8f0; border: 1px solid #3b82f6; border-radius: 0.5rem;">
+                  ${sampleGraph.nodes.map(n => `<option value="${n.id}" ${state.graphTarget === n.id ? 'selected' : ''}>${n.id}</option>`).join('')}
+                </select>
+              </label>
+              <button class="btn accent" id="reset-graph">Reset</button>
+            </div>
+
+            <div class="card">
+              <div class="grid">
+                <div class="section">
+                  <h3>Nœuds</h3>
+                  <div class="graph-nodes" id="graph-nodes"></div>
+                </div>
+                <div class="section">
+                  <h3>Frontière</h3>
+                  <div class="graph-nodes" id="graph-frontier"></div>
+                </div>
+                <div class="section">
+                  <h3>Arêtes</h3>
+                  <ul style="font-size: 0.875rem; color: #475569;">
+                    ${sampleGraph.edges.map(e => `<li>${e.from} → ${e.to} <span style="color: #64748b;">(${e.w})</span></li>`).join('')}
+                  </ul>
+                </div>
+                <div class="section">
+                  <h3>Distances</h3>
+                  <div id="graph-distances" style="font-size: 0.85rem; color: #cbd5e1;"></div>
+                </div>
+              </div>
+              <div class="info-box" style="margin-top: 1rem;">
+                <strong>Étape ${state.graphIdx + 1} / ${state.graphSteps.length}</strong> — ${state.graphSteps[state.graphIdx]?.note || ''}
+              </div>
+            </div>
+
+            <div class="controls-row" style="justify-content: flex-start;">
+              <button class="btn" id="graph-prev" ${state.graphIdx === 0 ? 'disabled' : ''}>◀ Précédent</button>
+              <button class="btn accent" id="graph-play">${state.graphPlaying ? 'Pause' : 'Lecture'}</button>
+              <button class="btn accent" id="graph-next" ${state.graphIdx >= state.graphSteps.length - 1 ? 'disabled' : ''}>Suivant ▶</button>
+            </div>
+          `;
+
+          const frame = state.graphSteps[state.graphIdx];
+          const nodesDiv = document.getElementById('graph-nodes');
+          const frontierDiv = document.getElementById('graph-frontier');
+          const distancesDiv = document.getElementById('graph-distances');
+          
+          nodesDiv.innerHTML = sampleGraph.nodes.map(n => {
+            const vis = frame.visited.includes(n.id);
+            const fron = frame.frontier.includes(n.id);
+            return `<span class="node ${vis ? 'visited' : fron ? 'frontier' : ''}">${n.id}</span>`;
+          }).join('');
+
+          frontierDiv.innerHTML = frame.frontier.length > 0 
+            ? frame.frontier.map(id => `<span class="node frontier">${id}</span>`).join('')
+            : '<span style="color: #94a3b8;">Vide</span>';
+
+          if (distancesDiv) {
+            if (frame.dist) {
+              const items = Object.entries(frame.dist)
+                .map(([k, v]) => `${k}: ${v === Infinity ? '∞' : v}`)
+                .join(' • ');
+              let pathLine = '';
+              if (state.graphAlgo === 'dijkstra' && frame.prev) {
+                const path = [];
+                let node = state.graphTarget;
+                while (node) {
+                  path.unshift(node);
+                  node = frame.prev[node];
+                }
+                if (path.length > 0 && path[0] === state.graphStart) {
+                  pathLine = `<div style="margin-top:0.5rem; color:#60a5fa;">Chemin: ${path.join(' → ')}</div>`;
+                }
+              }
+              distancesDiv.innerHTML = items + pathLine || '<span style="color:#94a3b8;">Non calculé</span>';
+            } else {
+              distancesDiv.innerHTML = '<span style="color:#94a3b8;">Distances non utilisées</span>';
+            }
+          }
+
+          document.querySelectorAll('input[name="graphAlgo"]').forEach(r => {
+            r.addEventListener('change', e => {
+              state.graphAlgo = e.target.value;
+              if (state.graphAlgo === 'dijkstra') {
+                state.graphSteps = dijkstra(sampleGraph, state.graphStart, state.graphTarget);
+              } else if (state.graphAlgo === 'bfs') {
+                state.graphSteps = bfs(sampleGraph, state.graphStart);
+              } else {
+                state.graphSteps = dfs(sampleGraph, state.graphStart);
+              }
+              state.graphIdx = 0;
+              state.graphPlaying = false;
+              render();
+            });
+          });
+
+          const recomputeGraph = () => {
+            if (state.graphAlgo === 'dijkstra') {
+              state.graphSteps = dijkstra(sampleGraph, state.graphStart, state.graphTarget);
+            } else if (state.graphAlgo === 'bfs') {
+              state.graphSteps = bfs(sampleGraph, state.graphStart);
+            } else {
+              state.graphSteps = dfs(sampleGraph, state.graphStart);
+            }
+            state.graphIdx = 0;
+            state.graphPlaying = false;
+            render();
+          };
+
+          document.getElementById('graph-start').addEventListener('change', e => {
+            state.graphStart = e.target.value;
+            recomputeGraph();
+          });
+
+          document.getElementById('graph-target').addEventListener('change', e => {
+            state.graphTarget = e.target.value;
+            recomputeGraph();
+          });
+
+          document.getElementById('reset-graph').addEventListener('click', () => {
+            state.graphIdx = 0;
+            state.graphPlaying = false;
+            render();
+          });
+
+          document.getElementById('graph-prev').addEventListener('click', () => {
+            if (state.graphIdx > 0) {
+              state.graphIdx--;
+              state.graphPlaying = false;
+              render();
+            }
+          });
+
+          document.getElementById('graph-play').addEventListener('click', () => {
+            state.graphPlaying = !state.graphPlaying;
+            render();
+            if (state.graphPlaying) playGraph();
+          });
+
+          document.getElementById('graph-next').addEventListener('click', () => {
+            if (state.graphIdx < state.graphSteps.length - 1) {
+              state.graphIdx++;
+              state.graphPlaying = false;
+              render();
+            }
+          });
+
+        } else if (state.currentTab === 'perf') {
+          content.innerHTML = `
+            <div class="controls">
+              <label style="display: flex; align-items: center; gap: 0.5rem;">
+                Taille:
+                <input type="number" id="perf-size" min="20" max="500" value="${state.perfSize}" style="width: 100px;">
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem;">
+                Runs:
+                <input type="number" id="perf-runs" min="1" max="10" value="${state.perfRuns}" style="width: 80px;">
+              </label>
+              <button class="btn accent" id="run-bench">Comparer</button>
+            </div>
+
+            <div class="card" id="results-card">
+              <p style="color: #64748b; font-size: 0.875rem;">Clique pour lancer une comparaison.</p>
+            </div>
+          `;
+
+          document.getElementById('perf-size').addEventListener('change', e => {
+            state.perfSize = Number(e.target.value);
+          });
+
+          document.getElementById('perf-runs').addEventListener('change', e => {
+            state.perfRuns = Number(e.target.value);
+          });
+
+          document.getElementById('run-bench').addEventListener('click', () => {
+            state.perfResults = benchmark(['bubble', 'insertion', 'selection', 'quick', 'merge', 'heap', 'shell', 'counting', 'cocktail', 'radix', 'comb', 'gnome', 'cycle', 'pancake'], state.perfSize, state.perfRuns);
+            const card = document.getElementById('results-card');
+            card.innerHTML = `
+              <table>
+                <thead>
+                  <tr><th>Algo</th><th>Temps (ms)</th><th>Étapes</th></tr>
+                </thead>
+                <tbody>
+                  ${state.perfResults.map(r => `<tr><td>${r.algo.toUpperCase()}</td><td>${r.ms}</td><td>${r.steps}</td></tr>`).join('')}
+                </tbody>
+              </table>
+              <div style="margin-top:0.75rem; display:flex; gap:0.5rem;">
+                <button class="btn" id="copy-csv">Copier CSV</button>
+              </div>
+            `;
+
+            document.getElementById('copy-csv').addEventListener('click', async () => {
+              const header = 'algo,temps_ms,etapes';
+              const rows = state.perfResults.map(r => `${r.algo},${r.ms},${r.steps}`).join('\n');
+              const csv = header + '\n' + rows;
+              try {
+                await navigator.clipboard.writeText(csv);
+                document.getElementById('copy-csv').textContent = 'Copié !';
+                setTimeout(() => document.getElementById('copy-csv').textContent = 'Copier CSV', 1200);
+              } catch (e) {
+                alert('Impossible de copier : autorisez le presse-papier.');
+              }
+            });
+          });
+
+        } else if (state.currentTab === 'asm') {
+          const step = state.asmSteps[state.asmIdx];
+          content.innerHTML = `
+            <div class="card">
+              <div class="controls">
+                <div class="control-group">
+                  <label>Programme</label>
+                  <textarea id="asm-code" style="width: 100%; height: 150px; padding: 0.75rem; border: 1px solid #3b82f6; background: rgba(15, 23, 42, 0.8); color: #f1f5f9; font-family: monospace; border-radius: 0.5rem;">${state.asmProgram.join('\n')}</textarea>
+                </div>
+                <div class="control-group">
+                  <label>Exemples rapides</label>
+                  <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap: wrap;">
+                    <select id="asm-sample" style="padding: 0.5rem; background: rgba(15,23,42,0.8); color:#e2e8f0; border:1px solid #3b82f6; border-radius:0.5rem;">
+                      <option value="boucle">Boucle + somme</option>
+                      <option value="pile">Pile push/pop</option>
+                      <option value="branche">Branchement JE/JMP</option>
+                    </select>
+                    <button class="btn" id="load-sample">Charger</button>
+                  </div>
+                </div>
+                <button class="btn accent" id="run-asm">Exécuter</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <span>Étape ${state.asmIdx + 1} / ${state.asmSteps.length}</span>
+                <span>${step?.note || ''}</span>
+              </div>
+              <div class="asm-container">
+                <div class="asm-registers">
+                  <h3>Registres</h3>
+                  ${Object.entries(step?.registers || {}).map(([reg, val]) => `
+                    <div class="register-item">
+                      <span class="register-name">${reg}</span>
+                      <span class="register-value">${val}</span>
+                    </div>
+                  `).join('')}
+                </div>
+                <div class="asm-registers">
+                  <h3>Flags</h3>
+                  ${step?.flags ? Object.entries(step.flags).map(([flag, val]) => `
+                    <div class="register-item">
+                      <span class="register-name">${flag}</span>
+                      <span class="register-value">${val ? 1 : 0}</span>
+                    </div>
+                  `).join('') : '<p style="color:#94a3b8;">Aucun</p>'}
+                </div>
+                <div class="asm-memory">
+                  <h3>Pile (Mémoire)</h3>
+                  ${Object.entries(step?.memory || {}).length === 0 ? '<p style="color: #94a3b8;">Vide</p>' : Object.entries(step?.memory || {}).map(([addr, val]) => `
+                    <div class="register-item">
+                      <span class="register-name">[${addr}]</span>
+                      <span class="register-value">${val}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              <div class="asm-full">
+                <h3 style="color: #60a5fa; font-weight: 700; margin-bottom: 0.75rem;">Code</h3>
+                ${state.asmProgram.map((line, i) => `
+                  <div class="instruction-line ${i === step?.pc ? 'active' : ''}">
+                    ${i === step?.pc ? '→' : ' '} ${i + 1}: ${line}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="controls-row">
+              <div class="btn-group">
+                <button class="btn" id="asm-prev" ${state.asmIdx === 0 ? 'disabled' : ''}>◀ Précédent</button>
+                <button class="btn accent" id="asm-play">${state.asmPlaying ? 'Pause' : 'Lecture'}</button>
+                <button class="btn accent" id="asm-next" ${state.asmIdx >= state.asmSteps.length - 1 ? 'disabled' : ''}>Suivant ▶</button>
+              </div>
+            </div>
+          `;
+          
+          document.getElementById('run-asm').addEventListener('click', () => {
+            const code = document.getElementById('asm-code').value;
+            state.asmProgram = code.split('\n').filter(l => l.trim());
+            state.asmSteps = simulateAssembly(state.asmProgram);
+            state.asmIdx = 0;
+            state.asmPlaying = false;
+            render();
+          });
+
+          document.getElementById('load-sample').addEventListener('click', () => {
+            const choice = document.getElementById('asm-sample').value;
+            state.asmProgram = programSamples[choice] || defaultProgram;
+            state.asmSteps = simulateAssembly(state.asmProgram);
+            state.asmIdx = 0;
+            state.asmPlaying = false;
+            render();
+          });
+          
+          document.getElementById('asm-prev').addEventListener('click', () => {
+            if (state.asmIdx > 0) {
+              state.asmIdx--;
+              state.asmPlaying = false;
+              render();
+            }
+          });
+
+          document.getElementById('asm-play').addEventListener('click', () => {
+            state.asmPlaying = !state.asmPlaying;
+            render();
+            if (state.asmPlaying) playAsm();
+          });
+          
+          document.getElementById('asm-next').addEventListener('click', () => {
+            if (state.asmIdx < state.asmSteps.length - 1) {
+              state.asmIdx++;
+              state.asmPlaying = false;
+              render();
+            }
+          });
+        }
+      };
+
+      const playAnimation = () => {
+        if (!state.playing) return;
+        const timer = setTimeout(() => {
+          if (state.frameIdx < state.frames.length - 1) {
+            state.frameIdx++;
+            render();
+            playAnimation();
+          } else {
+            state.playing = false;
+            render();
+          }
+        }, state.speed);
+      };
+
+      const playGraph = () => {
+        if (!state.graphPlaying) return;
+        setTimeout(() => {
+          if (state.graphIdx < state.graphSteps.length - 1) {
+            state.graphIdx++;
+            render();
+            playGraph();
+          } else {
+            state.graphPlaying = false;
+            render();
+          }
+        }, Math.max(150, state.speed));
+      };
+
+      const playAsm = () => {
+        if (!state.asmPlaying) return;
+        setTimeout(() => {
+          if (state.asmIdx < state.asmSteps.length - 1) {
+            state.asmIdx++;
+            render();
+            playAsm();
+          } else {
+            state.asmPlaying = false;
+            render();
+          }
+        }, Math.max(150, state.speed));
+      };
+
+      // ========== INIT ==========
+      state.arr = createRandomArray(state.size, state.distribution);
+      state.frames = generateSort(state.algo, state.arr);
+      state.graphSteps = bfs(sampleGraph, state.graphStart);
+      state.asmSteps = simulateAssembly(state.asmProgram);
+
+      render();
+
+      // ========== KEYBOARD SHORTCUTS ==========
+      document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+        
+        if (state.currentTab === 'sorting') {
+          if (e.key === ' ') {
+            e.preventDefault();
+            state.playing = !state.playing;
+            render();
+            if (state.playing) playAnimation();
+          } else if (e.key === 'ArrowLeft' && state.frameIdx > 0) {
+            e.preventDefault();
+            state.frameIdx--;
+            render();
+          } else if (e.key === 'ArrowRight' && state.frameIdx < state.frames.length - 1) {
+            e.preventDefault();
+            state.frameIdx++;
+            render();
+          } else if (e.key === 'r' || e.key === 'R') {
+            e.preventDefault();
+            state.arr = createRandomArray(state.size, state.distribution);
+            state.frames = generateSort(state.algo, state.arr);
+            state.frameIdx = 0;
+            state.playing = false;
+            if (state.compareMode) {
+              state.frames2 = generateSort(state.algo2, state.arr);
+              state.frameIdx2 = 0;
+            }
+            render();
+          }
+        } else if (state.currentTab === 'graphs') {
+          if (e.key === ' ') {
+            e.preventDefault();
+            state.graphPlaying = !state.graphPlaying;
+            render();
+            if (state.graphPlaying) playGraph();
+          } else if (e.key === 'ArrowLeft' && state.graphIdx > 0) {
+            e.preventDefault();
+            state.graphIdx--;
+            state.graphPlaying = false;
+            render();
+          } else if (e.key === 'ArrowRight' && state.graphIdx < state.graphSteps.length - 1) {
+            e.preventDefault();
+            state.graphIdx++;
+            state.graphPlaying = false;
+            render();
+          }
+        } else if (state.currentTab === 'asm') {
+          if (e.key === ' ') {
+            e.preventDefault();
+            state.asmPlaying = !state.asmPlaying;
+            render();
+            if (state.asmPlaying) playAsm();
+          } else if (e.key === 'ArrowLeft' && state.asmIdx > 0) {
+            e.preventDefault();
+            state.asmIdx--;
+            state.asmPlaying = false;
+            render();
+          } else if (e.key === 'ArrowRight' && state.asmIdx < state.asmSteps.length - 1) {
+            e.preventDefault();
+            state.asmIdx++;
+            state.asmPlaying = false;
+            render();
+          }
+        }
+      });
+
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          state.currentTab = tab.dataset.tab;
+          if (state.currentTab === 'sorting') state.playing = false;
+          if (state.currentTab !== 'graphs') state.graphPlaying = false;
+          if (state.currentTab !== 'asm') state.asmPlaying = false;
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          render();
+        });
+      });
+    </script>
+  </body>
+</html>
